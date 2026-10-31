@@ -227,7 +227,10 @@ func (s *EmailsReceivingService) ListAutoPaging(ctx context.Context, params *Ema
 // status notification), out_of_office, auto_reply, auto_generated (notifications, null sender) or bulk
 // (mailing lists). Detected from Auto-Submitted, X-Autoreply, Precedence, List-Id, multipart/report
 // and well-known subjects; reason names the evidence. tls: the TLS version the sending server used
-// (e.g. TLSv1_3); empty when the message was not encrypted.
+// (e.g. TLSv1_3); empty when the message was not encrypted. A message refused at SMTP (status:
+// rejected: spam or a reject route) is listed but its content was never kept: it returns the listing
+// fields, with html, text and raw null and headers empty. Its attachments, redelivery, spam reports
+// and replies are 404; DELETE erases it.
 func (s *EmailsReceivingService) Get(ctx context.Context, id string, params *EmailsReceivingGetParams, opts ...RequestOption) (*ReceivedEmail, error) {
 	return call[ReceivedEmail](ctx, s.c, &request{method: http.MethodGet, path: "/emails/receiving/{id}", pathArgs: []string{"id", id}, query: encodeQuery(params)}, opts)
 }

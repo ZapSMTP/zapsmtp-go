@@ -324,7 +324,7 @@ func (p SendEmailParams) MarshalJSON() ([]byte, error) {
 
 // EmailsListParams are the parameters of Emails.List (GET /emails).
 type EmailsListParams struct {
-	// 1-100; out-of-range values fall back to 20. Default: 20.
+	// 1-100. Limits: 422 invalid_parameter otherwise. Default: 20.
 	Limit *int `url:"limit"`
 
 	// Cursor: an email id (UUIDv7) or RFC 3339 time; returns emails accepted before it. An email id gives
@@ -337,18 +337,19 @@ type EmailsListParams struct {
 	After *string `url:"after"`
 
 	// Filter by latest status. status=scheduled lists pending scheduled sends instead (different item
-	// shape, ordered by scheduled time ascending, has_more always false, other filters/cursors ignored).
+	// shape, ordered by scheduled time ascending, has_more always false, other filters/cursors ignored,
+	// though they must be valid).
 	Status *EmailStatus `url:"status"`
 
 	// Case-insensitive substring of a recipient or subject, or an exact email id.
 	Q *string `url:"q"`
 
-	// Look-back window in days, 1-90 (other values ignored). Always capped by the plan's log retention.
-	// Default: 30.
+	// Look-back window in days, 1-90. Always capped by the plan's log retention. Limits: 422
+	// invalid_parameter otherwise. Default: 30.
 	Days   *int    `url:"days"`
 	Stream *Stream `url:"stream"`
 
-	// Filter live or test-mode (sandbox) traffic; other values ignored.
+	// Filter live or test-mode (sandbox) traffic. Limits: 422 invalid_parameter for other values.
 	Mode *Mode `url:"mode"`
 
 	// Exact match on a metadata value, e.g. metadata[order_id]=A-1042. Repeatable for several keys.
@@ -397,7 +398,7 @@ func (p EmailsSpamCheckParams) MarshalJSON() ([]byte, error) {
 
 // EmailsReceivingListParams are the parameters of Emails.Receiving.List (GET /emails/receiving).
 type EmailsReceivingListParams struct {
-	// 1-100; out-of-range falls back to 20. Default: 20.
+	// 1-100. Limits: 422 invalid_parameter otherwise. Default: 20.
 	Limit *int `url:"limit"`
 
 	// Cursor: an email id or RFC 3339 time; returns messages received before it. An email id gives an
@@ -433,7 +434,7 @@ type EmailsReceivingGetParams struct {
 // EmailsReceivingAttachmentsListParams are the parameters of Emails.Receiving.Attachments.List (GET
 // /emails/receiving/{id}/attachments).
 type EmailsReceivingAttachmentsListParams struct {
-	// 1-100; when omitted or out of range all attachments are returned.
+	// 1-100; when omitted all attachments are returned. Limits: 422 invalid_parameter otherwise.
 	Limit *int `url:"limit"`
 
 	// Attachment id; returns attachments after it (ignored if unknown).
@@ -552,7 +553,7 @@ func (p EmailsReceivingReplyParams) MarshalJSON() ([]byte, error) {
 
 // ThreadsListParams are the parameters of Threads.List (GET /threads).
 type ThreadsListParams struct {
-	// 1-100; out-of-range falls back to 20. Default: 20.
+	// 1-100. Limits: 422 invalid_parameter otherwise. Default: 20.
 	Limit *int `url:"limit"`
 
 	// Cursor: the last_message_at of the last conversation you have (RFC 3339). Limits: 422
@@ -563,10 +564,12 @@ type ThreadsListParams struct {
 	// are neither skipped nor repeated.
 	BeforeID *string `url:"before_id"`
 
-	// true: only conversations whose last human email came in.
+	// true: only conversations whose last human email came in. Limits: 422 invalid_parameter unless true
+	// or false.
 	AwaitingReply *bool `url:"awaiting_reply"`
 
-	// true: only conversations with an email received after their read mark.
+	// true: only conversations with an email received after their read mark. Limits: 422
+	// invalid_parameter unless true or false.
 	Unread *bool `url:"unread"`
 
 	// Only conversations this address took part in (case-insensitive).
@@ -734,20 +737,20 @@ func (p InboundForwardDestinationsCreateParams) MarshalJSON() ([]byte, error) {
 
 // StatsGetParams are the parameters of Stats.Get (GET /stats).
 type StatsGetParams struct {
-	// 1-720; out-of-range falls back to 24. Default: 24.
+	// 1-720. Limits: 422 invalid_parameter otherwise. Default: 24.
 	Hours *int `url:"hours"`
 }
 
 // StatsTimeseriesParams are the parameters of Stats.Timeseries (GET /stats/timeseries).
 type StatsTimeseriesParams struct {
-	// 1-720; out-of-range falls back to 24. Bucket size: <=1h → 60 s, <=6h → 300 s, <=24h → 1800 s,
+	// 1-720 (422 invalid_parameter otherwise). Bucket size: <=1h → 60 s, <=6h → 300 s, <=24h → 1800 s,
 	// <=168h → 10800 s, otherwise 43200 s. Default: 24.
 	Hours *int `url:"hours"`
 }
 
 // StatsBreakdownParams are the parameters of Stats.Breakdown (GET /stats/breakdown).
 type StatsBreakdownParams struct {
-	// 1-720; out-of-range falls back to 24. Default: 24.
+	// 1-720. Limits: 422 invalid_parameter otherwise. Default: 24.
 	Hours *int `url:"hours"`
 }
 
@@ -828,7 +831,7 @@ func (p DomainsUpdateParams) MarshalJSON() ([]byte, error) {
 
 // DomainsGetDMARCParams are the parameters of Domains.GetDMARC (GET /domains/{id}/dmarc).
 type DomainsGetDMARCParams struct {
-	// 1-180; out-of-range falls back to 30. Default: 30.
+	// 1-180. Limits: 422 invalid_parameter otherwise. Default: 30.
 	Days *int `url:"days"`
 }
 
@@ -1109,7 +1112,7 @@ func (p TemplatesRenderSourceParams) MarshalJSON() ([]byte, error) {
 
 // SuppressionsListParams are the parameters of Suppressions.List (GET /suppressions).
 type SuppressionsListParams struct {
-	// 1-1000; out-of-range falls back to 100. Default: 100.
+	// 1-1000. Limits: 422 invalid_parameter otherwise. Default: 100.
 	Limit *int `url:"limit"`
 
 	// Opaque cursor from next_cursor. Limits: 422 invalid_parameter "invalid after cursor".
@@ -1138,7 +1141,7 @@ func (p SuppressionsCreateParams) MarshalJSON() ([]byte, error) {
 
 // LogsListParams are the parameters of Logs.List (GET /logs).
 type LogsListParams struct {
-	// 1–100. Default: 20.
+	// 1–100. Limits: 422 invalid_parameter otherwise. Default: 20.
 	Limit *int `url:"limit"`
 
 	// A log id: return older entries.

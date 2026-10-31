@@ -1300,12 +1300,13 @@ func (m *SendBatchResponse) UnmarshalJSON(data []byte) error {
 // SendBatchResponseData is a response object of the API. Decoding never fails on a field of an
 // unexpected type: that field is left empty and Raw keeps it.
 type SendBatchResponseData struct {
-	ID          string   `json:"id"`
-	Index       int      `json:"index"`
-	ReplyTo     string   `json:"reply_to,omitempty"`
-	Suppressed  []string `json:"suppressed,omitempty"`
-	ThreadID    string   `json:"thread_id,omitempty"`
-	Unconfirmed bool     `json:"unconfirmed,omitempty"`
+	FailedRecipients []string `json:"failed_recipients,omitempty"`
+	ID               string   `json:"id"`
+	Index            int      `json:"index"`
+	ReplyTo          string   `json:"reply_to,omitempty"`
+	Suppressed       []string `json:"suppressed,omitempty"`
+	ThreadID         string   `json:"thread_id,omitempty"`
+	Unconfirmed      bool     `json:"unconfirmed,omitempty"`
 
 	// Raw is the object as the API sent it, unknown fields included.
 	Raw json.RawMessage `json:"-"`
@@ -1825,7 +1826,7 @@ type Template struct {
 	UpdatedAt             *time.Time               `json:"updated_at,omitempty"`
 	VariableNames         []string                 `json:"variable_names,omitempty"`
 	VariableSchema        []TemplateVariableSchema `json:"variable_schema,omitempty"`
-	Variables             map[string]string        `json:"variables,omitempty"`
+	Variables             map[string]any           `json:"variables,omitempty"`
 
 	// Raw is the object as the API sent it, unknown fields included.
 	Raw json.RawMessage `json:"-"`
