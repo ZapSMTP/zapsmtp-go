@@ -78,6 +78,23 @@ _, err = client.Emails.Send(ctx, &zapsmtp.SendEmailParams{
 })
 ```
 
+Images for templates, from a file or a URL:
+
+```go
+f, err := os.Open("logo.png")
+if err != nil {
+	return err
+}
+defer f.Close()
+// name is the asset's name, filename the file's (empty: the name)
+asset, err := client.TemplateAssets.UploadFile(ctx, f, "Logo", "logo.png")
+// or: client.TemplateAssets.Upload(ctx, &zapsmtp.TemplateAssetsUploadParams{URL: "https://acme.com/logo.png"})
+```
+
+A parameter with fixed values has a type and constants, such as
+`zapsmtp.Ptr(zapsmtp.GranularityDay)` or `zapsmtp.EmailStatusBounced`; any string converts to it,
+so a value newer than this SDK works too.
+
 Up to 100 emails at once:
 
 ```go

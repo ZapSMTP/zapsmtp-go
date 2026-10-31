@@ -370,7 +370,7 @@ func TestConformance(t *testing.T) {
 		params := &zapsmtp.StatsMetricsParams{
 			From:        zapsmtp.String("from-1"),
 			To:          zapsmtp.String("to-1"),
-			Granularity: zapsmtp.String("granularity-1"),
+			Granularity: zapsmtp.Ptr(zapsmtp.GranularityHour),
 			Dimension:   zapsmtp.String("dimension-1"),
 			Domain:      zapsmtp.String("domain-1"),
 			Stream:      zapsmtp.String("stream-1"),

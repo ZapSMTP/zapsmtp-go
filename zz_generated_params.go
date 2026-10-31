@@ -90,6 +90,16 @@ const (
 	RouteActionReject  RouteAction = "reject"
 )
 
+// Granularity is one of the values below. It is a string, so a value newer than this SDK still works:
+// Granularity("…").
+type Granularity string
+
+// Granularity values.
+const (
+	GranularityHour Granularity = "hour"
+	GranularityDay  Granularity = "day"
+)
+
 // APIKeyPermission is one of the values below. It is a string, so a value newer than this SDK still
 // works: APIKeyPermission("…").
 type APIKeyPermission string
@@ -763,7 +773,7 @@ type StatsMetricsParams struct {
 	To *string `url:"to"`
 
 	// hour (ranges up to 31 days) or day for series. Default: hour up to 48 hours, else day.
-	Granularity *string `url:"granularity"`
+	Granularity *Granularity `url:"granularity"`
 
 	// domain, stream, tag or provider: adds groups, one row per value, busiest first.
 	Dimension *string `url:"dimension"`
