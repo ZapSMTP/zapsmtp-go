@@ -321,8 +321,9 @@ type SendEmailParams struct {
 	// template_render_error "missing template variables: a, b".
 	Template *TemplateRef `json:"template,omitzero"`
 
-	// required or verified: deliver only over TLS (verified: with a valid certificate for the receiving
-	// server). Raises the domain's policy, never lowers it.
+	// opportunistic, required or verified: required delivers only over TLS, verified only with a valid
+	// certificate for the receiving server. The stricter of this and the domain’s policy applies: it
+	// raises the domain’s policy, never lowers it.
 	TLS *string `json:"tls,omitzero"`
 }
 
@@ -553,6 +554,11 @@ type EmailsReceivingReplyParams struct {
 	// unparsable → 422 invalid_parameter; more than 7 days ahead → 422 invalid_parameter "scheduled_at
 	// must be within 7 days".
 	ScheduledAt *string `json:"scheduled_at,omitzero"`
+
+	// opportunistic, required or verified: required delivers only over TLS, verified only with a valid
+	// certificate for the receiving server. The stricter of this and the domain’s policy applies: it
+	// raises the domain’s policy, never lowers it.
+	TLS *string `json:"tls,omitzero"`
 }
 
 // MarshalJSON leaves out the optional fields that are nil, and sends the rest: an empty, non-nil slice

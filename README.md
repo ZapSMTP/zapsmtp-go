@@ -157,11 +157,11 @@ context's error as is; an auto-paging loop ends with that error, even between th
 
 ## Retries and timeouts
 
-A request that failed on the way (429, 408, 5xx, a lost connection) is tried again twice by default,
+A request that failed on the way (408, 429, 500, 502, 503, 504, a lost connection) is tried again twice by default,
 waiting as the API's `Retry-After` says or backing off exponentially (0.5 s, 1 s, 2 s, … up to 8 s,
 with jitter). Only requests that are safe to repeat are retried: reads, `PUT`, deletes, and sends,
 which always carry an `Idempotency-Key` (pass your own with `zapsmtp.WithIdempotencyKey` to make
-retries of your own safe too). Other `POST` and `PATCH` requests are retried only on 429. An empty or blank
+retries of your own safe too). Other `POST` and `PATCH` requests are retried only on 429. A 429 for a quota or `thread_reply_limit` is never retried; a 409 `idempotency_request_in_progress` is. An empty or blank
 key (from `WithIdempotencyKey` or a header) is refused before sending, with an `*Error` of kind
 `ErrValidation`: the API would not deduplicate it, so a retry could send twice.
 

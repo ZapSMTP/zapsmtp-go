@@ -184,6 +184,7 @@ func TestConformance(t *testing.T) {
 			Tracking:       &zapsmtp.Tracking{Opens: zapsmtp.Bool(true), Clicks: zapsmtp.Bool(true), Replies: zapsmtp.Bool(true)},
 			Template:       &zapsmtp.TemplateRef{ID: "id-1", Variables: map[string]any{"key": map[string]any{"key": "value"}}},
 			ScheduledAt:    zapsmtp.String("scheduled_at-1"),
+			TLS:            zapsmtp.String("tls-1"),
 		}
 		res, err := client.Emails.Receiving.Reply(ctx, "id-1", params)
 		checkResult(t, "reply-received", res, err)
