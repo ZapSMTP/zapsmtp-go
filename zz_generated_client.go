@@ -27,6 +27,7 @@ type Client struct {
 	DedicatedIPs    *DedicatedIPsService
 	Logs            *LogsService
 	Usage           *UsageService
+	Account         *AccountService
 	TemplateModules *TemplateModulesService
 	TemplateAssets  *TemplateAssetsService
 	TemplateTimers  *TemplateTimersService
@@ -69,6 +70,7 @@ func (cl *Client) initServices(c *core) {
 	cl.DedicatedIPs = &DedicatedIPsService{c: c}
 	cl.Logs = &LogsService{c: c}
 	cl.Usage = &UsageService{c: c}
+	cl.Account = &AccountService{c: c}
 	cl.TemplateModules = &TemplateModulesService{c: c}
 	cl.TemplateAssets = &TemplateAssetsService{c: c}
 	cl.TemplateTimers = &TemplateTimersService{c: c}
@@ -1165,6 +1167,29 @@ type UsageService struct {
 // cap: email keeps flowing and extra volume is billed. The Free plan adds daily_limit and sent_today.
 func (s *UsageService) Get(ctx context.Context, opts ...RequestOption) (*Usage, error) {
 	return call[Usage](ctx, s.c, &request{method: http.MethodGet, path: "/usage"}, opts)
+}
+
+// AccountService groups the account operations. Use it as client.Account.
+type AccountService struct {
+	c *core
+}
+
+// Get calls GET /account: Retrieve the account.
+//
+// The account the key belongs to: its name, status and sending rate limit, the plan with its limits,
+// this month’s sent count and the SMTP relay settings. Requires a full-access key. spend_cap_cents is
+// null without a spending cap. For the month’s overage and limit use GET /usage. Plan changes and
+// payments are made in the dashboard, never with an API key.
+func (s *AccountService) Get(ctx context.Context, opts ...RequestOption) (*AccountInfo, error) {
+	return call[AccountInfo](ctx, s.c, &request{method: http.MethodGet, path: "/account"}, opts)
+}
+
+// Update calls PATCH /account: Rename the account.
+//
+// Rename the account. Answers the account as GET /account does. Requires a full-access live key; test
+// keys get 403 test_key_restricted.
+func (s *AccountService) Update(ctx context.Context, params *AccountUpdateParams, opts ...RequestOption) (*AccountInfo, error) {
+	return call[AccountInfo](ctx, s.c, &request{method: http.MethodPatch, path: "/account", body: params}, opts)
 }
 
 // TemplateModulesService groups the templateModules operations. Use it as client.TemplateModules.

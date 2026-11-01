@@ -691,6 +691,19 @@ func TestConformance(t *testing.T) {
 		res, err := client.Usage.Get(ctx)
 		checkResult(t, "usage", res, err)
 	})
+	t.Run("get-account", func(t *testing.T) {
+		ran["get-account"] = true
+		res, err := client.Account.Get(ctx)
+		checkResult(t, "get-account", res, err)
+	})
+	t.Run("update-account", func(t *testing.T) {
+		ran["update-account"] = true
+		params := &zapsmtp.AccountUpdateParams{
+			Name: "name-1",
+		}
+		res, err := client.Account.Update(ctx, params)
+		checkResult(t, "update-account", res, err)
+	})
 	t.Run("update-api-key", func(t *testing.T) {
 		ran["update-api-key"] = true
 		params := &zapsmtp.APIKeysUpdateParams{
@@ -911,6 +924,11 @@ func TestModelsDecode(t *testing.T) {
 		v    any
 		json string
 	}{
+		"AccountInfo":                     {new(zapsmtp.AccountInfo), `{"account":{"created_at":"2026-01-02T03:04:05Z","current_period_end":"2026-01-02T03:04:05Z","dedicated_ips":2,"id":"id-1","monthly_quota":2,"name":"name-1","plan":"plan-1","rate_limit_per_sec":1.5,"spend_cap_cents":2,"status":"status-1","subscription_status":"subscription_status-1"},"object":"object-1","plan":{"daily_emails":2,"id":"id-1","included_emails":2,"max_domains":2,"max_smtp_credentials":2,"name":"name-1","overage_cents_per_1000":2,"price_cents":2,"retention_days":2,"smtp_relay":true,"tier":"tier-1"},"smtp":{"host":"host-1","password":"password-1","ports":[2],"username":"username-1"},"usage":{"month":"month-1","monthly_quota":2,"sent":2}}`},
+		"AccountPlan":                     {new(zapsmtp.AccountPlan), `{"daily_emails":2,"id":"id-1","included_emails":2,"max_domains":2,"max_smtp_credentials":2,"name":"name-1","overage_cents_per_1000":2,"price_cents":2,"retention_days":2,"smtp_relay":true,"tier":"tier-1"}`},
+		"AccountProfile":                  {new(zapsmtp.AccountProfile), `{"created_at":"2026-01-02T03:04:05Z","current_period_end":"2026-01-02T03:04:05Z","dedicated_ips":2,"id":"id-1","monthly_quota":2,"name":"name-1","plan":"plan-1","rate_limit_per_sec":1.5,"spend_cap_cents":2,"status":"status-1","subscription_status":"subscription_status-1"}`},
+		"AccountSMTP":                     {new(zapsmtp.AccountSMTP), `{"host":"host-1","password":"password-1","ports":[2],"username":"username-1"}`},
+		"AccountUsage":                    {new(zapsmtp.AccountUsage), `{"month":"month-1","monthly_quota":2,"sent":2}`},
 		"Action":                          {new(zapsmtp.Action), `{"clicks_30d":2,"clicks_7d":2,"created_at":"2026-01-02T03:04:05Z","declared":true,"description":"description-1","last_click_at":"2026-01-02T03:04:05Z","name":"name-1","object":"object-1","templates":2,"unique_clickers_30d":2,"updated_at":"2026-01-02T03:04:05Z","webhooks":["webhooks-1"]}`},
 		"APIKey":                          {new(zapsmtp.APIKey), `{"created_at":"2026-01-02T03:04:05Z","domain_id":"domain_id-1","expires_at":"2026-01-02T03:04:05Z","id":"id-1","last_used_at":"2026-01-02T03:04:05Z","mode":"mode-1","name":"name-1","permission":"permission-1","prefix":"prefix-1","stream":"stream-1"}`},
 		"Attachment":                      {new(zapsmtp.Attachment), `{"content_disposition":"content_disposition-1","content_id":"content_id-1","content_type":"content_type-1","download_url":"download_url-1","expires_at":"2026-01-02T03:04:05Z","filename":"filename-1","id":"id-1","object":"object-1","size":2}`},

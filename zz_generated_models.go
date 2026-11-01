@@ -8,6 +8,120 @@ import (
 	"time"
 )
 
+// AccountInfo is a response object of the API. Decoding never fails on a field of an unexpected type:
+// that field is left empty and Raw keeps it.
+type AccountInfo struct {
+	Account *AccountProfile `json:"account"`
+	Object  string          `json:"object,omitempty"`
+	Plan    *AccountPlan    `json:"plan"`
+	SMTP    *AccountSMTP    `json:"smtp"`
+	Usage   *AccountUsage   `json:"usage"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *AccountInfo) UnmarshalJSON(data []byte) error {
+	type plain AccountInfo
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// AccountPlan is a response object of the API. Decoding never fails on a field of an unexpected type:
+// that field is left empty and Raw keeps it.
+type AccountPlan struct {
+	DailyEmails         int    `json:"daily_emails"`
+	ID                  string `json:"id"`
+	IncludedEmails      int    `json:"included_emails"`
+	MaxDomains          int    `json:"max_domains"`
+	MaxSMTPCredentials  int    `json:"max_smtp_credentials"`
+	Name                string `json:"name"`
+	OverageCentsPer1000 int    `json:"overage_cents_per_1000"`
+	PriceCents          int    `json:"price_cents"`
+	RetentionDays       int    `json:"retention_days"`
+	SMTPRelay           bool   `json:"smtp_relay,omitempty"`
+	Tier                string `json:"tier"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *AccountPlan) UnmarshalJSON(data []byte) error {
+	type plain AccountPlan
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// AccountProfile is a response object of the API. Decoding never fails on a field of an unexpected
+// type: that field is left empty and Raw keeps it.
+type AccountProfile struct {
+	CreatedAt          *time.Time `json:"created_at"`
+	CurrentPeriodEnd   *time.Time `json:"current_period_end"`
+	DedicatedIPs       int        `json:"dedicated_ips"`
+	ID                 string     `json:"id"`
+	MonthlyQuota       int        `json:"monthly_quota"`
+	Name               string     `json:"name"`
+	Plan               string     `json:"plan"`
+	RateLimitPerSec    float64    `json:"rate_limit_per_sec"`
+	SpendCapCents      *int       `json:"spend_cap_cents"`
+	Status             string     `json:"status"`
+	SubscriptionStatus string     `json:"subscription_status"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *AccountProfile) UnmarshalJSON(data []byte) error {
+	type plain AccountProfile
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// AccountSMTP is a response object of the API. Decoding never fails on a field of an unexpected type:
+// that field is left empty and Raw keeps it.
+type AccountSMTP struct {
+	Host     string `json:"host"`
+	Password string `json:"password"`
+	Ports    []int  `json:"ports"`
+	Username string `json:"username"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *AccountSMTP) UnmarshalJSON(data []byte) error {
+	type plain AccountSMTP
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// AccountUsage is a response object of the API. Decoding never fails on a field of an unexpected type:
+// that field is left empty and Raw keeps it.
+type AccountUsage struct {
+	Month        string `json:"month"`
+	MonthlyQuota int    `json:"monthly_quota"`
+	Sent         int    `json:"sent"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *AccountUsage) UnmarshalJSON(data []byte) error {
+	type plain AccountUsage
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
 // Action is a response object of the API. Decoding never fails on a field of an unexpected type: that
 // field is left empty and Raw keeps it.
 type Action struct {

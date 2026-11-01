@@ -1173,6 +1173,18 @@ type LogsListParams struct {
 	APIKeyID *string `url:"api_key_id"`
 }
 
+// AccountUpdateParams are the parameters of Account.Update (PATCH /account).
+type AccountUpdateParams struct {
+	// 1–100 characters. Required.
+	Name string `json:"name"`
+}
+
+// MarshalJSON leaves out the optional fields that are nil, and sends the rest: an empty, non-nil slice
+// or map goes out as [] or {}.
+func (p AccountUpdateParams) MarshalJSON() ([]byte, error) {
+	return marshalObject(p)
+}
+
 // APIKeysUpdateParams are the parameters of APIKeys.Update (PATCH /api-keys/{id}).
 type APIKeysUpdateParams struct {
 	// 1–100 characters.
