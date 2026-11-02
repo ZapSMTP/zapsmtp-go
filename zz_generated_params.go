@@ -116,19 +116,30 @@ type WebhookEventType string
 
 // WebhookEventType values.
 const (
-	WebhookEventTypeEmailSent            WebhookEventType = "email.sent"
-	WebhookEventTypeEmailDelivered       WebhookEventType = "email.delivered"
-	WebhookEventTypeEmailDeliveryDelayed WebhookEventType = "email.delivery_delayed"
-	WebhookEventTypeEmailBounced         WebhookEventType = "email.bounced"
-	WebhookEventTypeEmailComplained      WebhookEventType = "email.complained"
-	WebhookEventTypeEmailFailed          WebhookEventType = "email.failed"
-	WebhookEventTypeEmailOpened          WebhookEventType = "email.opened"
-	WebhookEventTypeEmailClicked         WebhookEventType = "email.clicked"
-	WebhookEventTypeEmailSuppressed      WebhookEventType = "email.suppressed"
-	WebhookEventTypeEmailReceived        WebhookEventType = "email.received"
-	WebhookEventTypeThreadCreated        WebhookEventType = "thread.created"
-	WebhookEventTypeThreadReplied        WebhookEventType = "thread.replied"
-	WebhookEventTypeEmailReplied         WebhookEventType = "email.replied"
+	WebhookEventTypeEmailSent               WebhookEventType = "email.sent"
+	WebhookEventTypeEmailDelivered          WebhookEventType = "email.delivered"
+	WebhookEventTypeEmailDeliveryDelayed    WebhookEventType = "email.delivery_delayed"
+	WebhookEventTypeEmailBounced            WebhookEventType = "email.bounced"
+	WebhookEventTypeEmailComplained         WebhookEventType = "email.complained"
+	WebhookEventTypeEmailFailed             WebhookEventType = "email.failed"
+	WebhookEventTypeEmailOpened             WebhookEventType = "email.opened"
+	WebhookEventTypeEmailClicked            WebhookEventType = "email.clicked"
+	WebhookEventTypeEmailSuppressed         WebhookEventType = "email.suppressed"
+	WebhookEventTypeEmailReceived           WebhookEventType = "email.received"
+	WebhookEventTypeThreadCreated           WebhookEventType = "thread.created"
+	WebhookEventTypeThreadReplied           WebhookEventType = "thread.replied"
+	WebhookEventTypeEmailReplied            WebhookEventType = "email.replied"
+	WebhookEventTypeEmailOpenedUnique       WebhookEventType = "email.opened_unique"
+	WebhookEventTypeEmailClickedUnique      WebhookEventType = "email.clicked_unique"
+	WebhookEventTypeEmailUnsubscribed       WebhookEventType = "email.unsubscribed"
+	WebhookEventTypeEmailForwardFailed      WebhookEventType = "email.forward_failed"
+	WebhookEventTypeDomainVerified          WebhookEventType = "domain.verified"
+	WebhookEventTypeDomainReputationChanged WebhookEventType = "domain.reputation_changed"
+	WebhookEventTypeEmailScheduled          WebhookEventType = "email.scheduled"
+	WebhookEventTypeSuppressionAdded        WebhookEventType = "suppression.added"
+	WebhookEventTypeSuppressionRemoved      WebhookEventType = "suppression.removed"
+	WebhookEventTypeDomainCreated           WebhookEventType = "domain.created"
+	WebhookEventTypeDomainDeleted           WebhookEventType = "domain.deleted"
 )
 
 // SuppressionReason is one of the values below. It is a string, so a value newer than this SDK still
@@ -215,9 +226,11 @@ func (p Tracking) MarshalJSON() ([]byte, error) {
 	return marshalObject(p)
 }
 
-// WebhookFilter narrows email.clicked to some click actions.
+// WebhookFilter narrows what an endpoint receives: email.clicked (and email.clicked_unique) to some
+// click actions, every event to some domains.
 type WebhookFilter struct {
 	Actions []string `json:"actions,omitzero"`
+	Domains []string `json:"domains,omitzero"`
 }
 
 // MarshalJSON leaves out the optional fields that are nil, and sends the rest: an empty, non-nil slice
@@ -932,8 +945,8 @@ type WebhooksCreateParams struct {
 	// Required.
 	URL string `json:"url"`
 
-	// Limits: unknown type → 422 invalid_parameter "unknown event type <x>; allowed: ...". Default: all
-	// event types.
+	// Limits: unknown type → 422 invalid_parameter "unknown event type <x>; allowed: ...". Default: every
+	// type except email.opened_unique and email.clicked_unique.
 	Events []WebhookEventType `json:"events,omitzero"`
 
 	// email.received carries the message: text, html, headers, and download links (valid 24 hours) for
@@ -946,8 +959,9 @@ type WebhooksCreateParams struct {
 	// still arrives alone. Default: false.
 	Batch *bool `json:"batch,omitzero"`
 
-	// Narrows email.clicked to some click actions; other event types are not affected. Empty or absent:
-	// every click. Default: {"actions": []}.
+	// Narrows what the endpoint receives: actions narrows email.clicked (and email.clicked_unique) to
+	// some click actions; domains narrows every event to some domains. Empty or absent: every click,
+	// every domain. Default: {"actions": [], "domains": []}.
 	Filter *WebhookFilter `json:"filter,omitzero"`
 }
 
@@ -978,8 +992,10 @@ type WebhooksUpdateParams struct {
 	// still arrives alone. Default: false.
 	Batch *bool `json:"batch,omitzero"`
 
-	// Narrows email.clicked to some click actions; other event types are not affected. Empty or absent:
-	// every click. Replaces the whole filter; {"actions": []} removes it.
+	// Narrows what the endpoint receives: actions narrows email.clicked (and email.clicked_unique) to
+	// some click actions; domains narrows every event to some domains. Empty or absent: every click,
+	// every domain. A list you leave out keeps its value; an empty list clears it: {"actions": []} lets
+	// every click through, {"domains": []} every domain.
 	Filter *WebhookFilter `json:"filter,omitzero"`
 }
 

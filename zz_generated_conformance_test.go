@@ -515,7 +515,7 @@ func TestConformance(t *testing.T) {
 			Events:         []zapsmtp.WebhookEventType{zapsmtp.WebhookEventTypeEmailSent},
 			IncludeContent: zapsmtp.Bool(true),
 			Batch:          zapsmtp.Bool(true),
-			Filter:         &zapsmtp.WebhookFilter{Actions: []string{"actions-1"}},
+			Filter:         &zapsmtp.WebhookFilter{Actions: []string{"actions-1"}, Domains: []string{"domains-1"}},
 		}
 		res, err := client.Webhooks.Create(ctx, params)
 		checkResult(t, "create-webhook", res, err)
@@ -533,7 +533,7 @@ func TestConformance(t *testing.T) {
 			Enabled:        zapsmtp.Bool(true),
 			IncludeContent: zapsmtp.Bool(true),
 			Batch:          zapsmtp.Bool(true),
-			Filter:         &zapsmtp.WebhookFilter{Actions: []string{"actions-1"}},
+			Filter:         &zapsmtp.WebhookFilter{Actions: []string{"actions-1"}, Domains: []string{"domains-1"}},
 		}
 		res, err := client.Webhooks.Update(ctx, "id-1", params)
 		checkResult(t, "update-webhook", res, err)
@@ -1023,7 +1023,7 @@ func TestModelsDecode(t *testing.T) {
 		"UsagePlan":                       {new(zapsmtp.UsagePlan), `{"id":"id-1","name":"name-1","retention_days":2}`},
 		"Variable":                        {new(zapsmtp.Variable), `{"description":"description-1","key":"key-1","kind":"kind-1","name":"name-1","object":"object-1","templates":[{"default":"default-1","id":"id-1","name":"name-1","required":true,"type":"type-1","unused":true}],"type":"type-1","types":["types-1"],"updated_at":"2026-01-02T03:04:05Z","value":"value-1"}`},
 		"VariableTemplate":                {new(zapsmtp.VariableTemplate), `{"default":"default-1","id":"id-1","name":"name-1","required":true,"type":"type-1","unused":true}`},
-		"Webhook":                         {new(zapsmtp.Webhook), `{"batch":true,"created_at":"2026-01-02T03:04:05Z","disabled_reason":"disabled_reason-1","enabled":true,"events":["events-1"],"filter":{"actions":["actions-1"]},"id":"id-1","include_content":true,"object":"object-1","previous_secret_expires_at":"2026-01-02T03:04:05Z","secret":"secret-1","url":"url-1"}`},
+		"Webhook":                         {new(zapsmtp.Webhook), `{"batch":true,"created_at":"2026-01-02T03:04:05Z","disabled_reason":"disabled_reason-1","enabled":true,"events":["events-1"],"filter":{"actions":["actions-1"],"domains":["domains-1"]},"id":"id-1","include_content":true,"object":"object-1","previous_secret_expires_at":"2026-01-02T03:04:05Z","secret":"secret-1","url":"url-1"}`},
 		"WebhookDelivery":                 {new(zapsmtp.WebhookDelivery), `{"at":"2026-01-02T03:04:05Z","attempt":2,"body":{"key":{"key":"value"}},"duration_ms":1.5,"error":"error-1","event_id":"event_id-1","event_type":"event_type-1","status_code":2}`},
 		"WebhookEventRecord":              {new(zapsmtp.WebhookEventRecord), `{"attempt_list":[{"at":"2026-01-02T03:04:05Z","attempt":2,"duration_ms":1.5,"error":"error-1","status_code":2}],"attempts":2,"first_attempt_at":"2026-01-02T03:04:05Z","id":"id-1","last_attempt_at":"2026-01-02T03:04:05Z","last_error":"last_error-1","last_status_code":2,"object":"object-1","payload":{"key":{"key":"value"}},"status":"status-1","type":"type-1"}`},
 		"WebhookEventRecordAttemptList":   {new(zapsmtp.WebhookEventRecordAttemptList), `{"at":"2026-01-02T03:04:05Z","attempt":2,"duration_ms":1.5,"error":"error-1","status_code":2}`},
