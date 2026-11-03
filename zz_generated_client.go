@@ -13,26 +13,28 @@ import (
 // Client is the ZapSMTP API client. Make one with NewClient; it is safe for concurrent use. Each field
 // is a group of operations, as in client.Emails.Send.
 type Client struct {
-	Emails          *EmailsService
-	Threads         *ThreadsService
-	Inbound         *InboundService
-	Simulator       *SimulatorService
-	Stats           *StatsService
-	Domains         *DomainsService
-	APIKeys         *APIKeysService
-	SMTPCredentials *SMTPCredentialsService
-	Webhooks        *WebhooksService
-	Templates       *TemplatesService
-	Suppressions    *SuppressionsService
-	DedicatedIPs    *DedicatedIPsService
-	Logs            *LogsService
-	Usage           *UsageService
-	Account         *AccountService
-	TemplateModules *TemplateModulesService
-	TemplateAssets  *TemplateAssetsService
-	TemplateTimers  *TemplateTimersService
-	Actions         *ActionsService
-	Variables       *VariablesService
+	Emails           *EmailsService
+	Threads          *ThreadsService
+	Inbound          *InboundService
+	Simulator        *SimulatorService
+	Stats            *StatsService
+	Domains          *DomainsService
+	APIKeys          *APIKeysService
+	SMTPCredentials  *SMTPCredentialsService
+	Webhooks         *WebhooksService
+	Templates        *TemplatesService
+	Suppressions     *SuppressionsService
+	DedicatedIPs     *DedicatedIPsService
+	Logs             *LogsService
+	Usage            *UsageService
+	Account          *AccountService
+	TemplateModules  *TemplateModulesService
+	TemplateAssets   *TemplateAssetsService
+	TemplateTimers   *TemplateTimersService
+	Actions          *ActionsService
+	Variables        *VariablesService
+	EmailValidations *EmailValidationsService
+	PlacementTests   *PlacementTestsService
 
 	c *core
 }
@@ -76,6 +78,8 @@ func (cl *Client) initServices(c *core) {
 	cl.TemplateTimers = &TemplateTimersService{c: c}
 	cl.Actions = &ActionsService{c: c}
 	cl.Variables = &VariablesService{c: c}
+	cl.EmailValidations = &EmailValidationsService{c: c}
+	cl.PlacementTests = &PlacementTestsService{c: c}
 }
 
 // WithBatchValidation sets x-batch-validation on Emails.SendBatch. strict (default) | permissive
@@ -1407,4 +1411,84 @@ func (s *VariablesService) SetGlobal(ctx context.Context, key string, params *Va
 // test_key_restricted.
 func (s *VariablesService) DeleteGlobal(ctx context.Context, key string, opts ...RequestOption) (*Deleted, error) {
 	return call[Deleted](ctx, s.c, &request{method: http.MethodDelete, path: "/variables/global/{key}", pathArgs: []string{"key", key}}, opts)
+}
+
+// EmailValidationsService groups the emailValidations operations. Use it as client.EmailValidations.
+type EmailValidationsService struct {
+	c *core
+}
+
+// Create calls POST /email-validations: Validate an address.
+//
+// Check one address before you send to it: syntax, the domain and its mail servers, throw-away and
+// role addresses, typos, your suppression list and earlier hard bounces. Any API key; test keys too
+// (nothing is sent or changed). result: deliverable (every check passed), risky (it may arrive, but
+// sending to it can hurt your reputation), undeliverable (it will bounce) or unknown (the domain's DNS
+// did not answer: try again later). reason is the most serious of reasons: invalid_syntax,
+// reserved_domain, domain_not_found, no_mail_server, mailbox_not_found, previously_bounced (hard
+// bounced on ZapSMTP in the last 180 days), dns_error, suppressed (on your suppression list),
+// disposable, accept_all, role_address; ok when there is none. checks.mailbox is exists, not_found,
+// unknown or not_checked. Nothing is ever sent to the address. did_you_mean suggests a likely intended
+// address when the domain looks like a typo. Each address counts against your plan's monthly
+// validations (Free 100, Pro 5,000, Scale 25,000); over it: 429 monthly_quota_exceeded. Results are
+// not stored.
+func (s *EmailValidationsService) Create(ctx context.Context, params *EmailValidationsCreateParams, opts ...RequestOption) (*EmailValidation, error) {
+	return call[EmailValidation](ctx, s.c, &request{method: http.MethodPost, path: "/email-validations", body: params}, opts)
+}
+
+// CreateBatch calls POST /email-validations/batch: Validate up to 100 addresses.
+//
+// Check up to 100 addresses in one call; results come back in the order given. Any API key; test keys
+// too (nothing is sent or changed). Each address counts against the plan's monthly validations; a
+// batch that would pass the allowance is refused whole.
+func (s *EmailValidationsService) CreateBatch(ctx context.Context, params *EmailValidationsCreateBatchParams, opts ...RequestOption) (*EmailValidationList, error) {
+	return call[EmailValidationList](ctx, s.c, &request{method: http.MethodPost, path: "/email-validations/batch", body: params}, opts)
+}
+
+// PlacementTestsService groups the placementTests operations. Use it as client.PlacementTests.
+type PlacementTestsService struct {
+	c *core
+}
+
+// Create calls POST /placement-tests: Start a placement test.
+//
+// Start an inbox placement test: see whether a message lands in the inbox, a Gmail tab or spam at the
+// big mailbox providers. Requires a full-access live key; test keys get 403 test_key_restricted. With
+// a message (from and content, or a template) one copy goes to each seed mailbox through your account,
+// like any send (each counts as a sent email; test keys cannot). Without one the test is manual: send
+// your message to every address in results from anywhere, with token in the subject or text, within 2
+// hours. ZapSMTP then reads each seed mailbox (Gmail, Outlook, Yahoo and others) and records where the
+// copy landed: inbox, a Gmail tab (promotions, social, updates, forums), spam, or missing once the
+// test ends (15 minutes after a send). auth is the provider's own SPF, DKIM and DMARC verdict. status
+// is running until every seed has an answer or the test ends, then done. summary.inbox_rate = inbox
+// (any tab) / seeds with an answer. Your plan includes a number of tests a month (Free 1, Pro 10,
+// Scale 50); over it: 429 monthly_quota_exceeded.
+func (s *PlacementTestsService) Create(ctx context.Context, params *PlacementTestsCreateParams, opts ...RequestOption) (*PlacementTest, error) {
+	return call[PlacementTest](ctx, s.c, &request{method: http.MethodPost, path: "/placement-tests", body: params}, opts)
+}
+
+// Get calls GET /placement-tests/{id}: Retrieve a placement test.
+//
+// Retrieve a placement test with where each copy landed. Requires a full-access key. ZapSMTP then
+// reads each seed mailbox (Gmail, Outlook, Yahoo and others) and records where the copy landed: inbox,
+// a Gmail tab (promotions, social, updates, forums), spam, or missing once the test ends (15 minutes
+// after a send). auth is the provider's own SPF, DKIM and DMARC verdict. status is running until every
+// seed has an answer or the test ends, then done. summary.inbox_rate = inbox (any tab) / seeds with an
+// answer.
+func (s *PlacementTestsService) Get(ctx context.Context, id string, opts ...RequestOption) (*PlacementTest, error) {
+	return call[PlacementTest](ctx, s.c, &request{method: http.MethodGet, path: "/placement-tests/{id}", pathArgs: []string{"id", id}}, opts)
+}
+
+// List calls GET /placement-tests: List placement tests.
+//
+// List placement tests, newest first, with cursor pagination. Requires a full-access key. Pass
+// next_cursor as after for the next page.
+func (s *PlacementTestsService) List(ctx context.Context, params *PlacementTestsListParams, opts ...RequestOption) (*Page[PlacementTest], error) {
+	return list[PlacementTest](ctx, s.c, &request{method: http.MethodGet, path: "/placement-tests", query: encodeQuery(params), paging: pagingCursor}, opts)
+}
+
+// ListAutoPaging is List as an iterator over every item of every page: it asks for the next page as
+// the loop reaches it. Stop the loop to stop asking. An error ends the sequence.
+func (s *PlacementTestsService) ListAutoPaging(ctx context.Context, params *PlacementTestsListParams, opts ...RequestOption) iter.Seq2[PlacementTest, error] {
+	return autoPaging(ctx, func() (*Page[PlacementTest], error) { return s.List(ctx, params, opts...) })
 }

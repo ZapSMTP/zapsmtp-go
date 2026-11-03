@@ -916,6 +916,52 @@ func TestConformance(t *testing.T) {
 		res, err := client.Variables.DeleteGlobal(ctx, "key-1")
 		checkResult(t, "delete-global-variable", res, err)
 	})
+	t.Run("validate-email", func(t *testing.T) {
+		ran["validate-email"] = true
+		params := &zapsmtp.EmailValidationsCreateParams{
+			Email: "email-1",
+		}
+		res, err := client.EmailValidations.Create(ctx, params)
+		checkResult(t, "validate-email", res, err)
+	})
+	t.Run("validate-emails", func(t *testing.T) {
+		ran["validate-emails"] = true
+		params := &zapsmtp.EmailValidationsCreateBatchParams{
+			Emails: []string{"emails-1"},
+		}
+		res, err := client.EmailValidations.CreateBatch(ctx, params)
+		checkResult(t, "validate-emails", res, err)
+	})
+	t.Run("create-placement-test", func(t *testing.T) {
+		ran["create-placement-test"] = true
+		params := &zapsmtp.PlacementTestsCreateParams{
+			From:     zapsmtp.String("from-1"),
+			Subject:  zapsmtp.String("subject-1"),
+			HTML:     zapsmtp.String("html-1"),
+			Text:     zapsmtp.String("text-1"),
+			Template: &zapsmtp.TemplateRef{ID: "id-1", Variables: map[string]any{"key": map[string]any{"key": "value"}}},
+			Headers:  map[string]string{"key": "value-1"},
+			Tags:     []zapsmtp.Tag{{Name: "name-1", Value: "value-1"}},
+			Stream:   zapsmtp.String("stream-1"),
+		}
+		res, err := client.PlacementTests.Create(ctx, params)
+		checkResult(t, "create-placement-test", res, err)
+	})
+	t.Run("get-placement-test", func(t *testing.T) {
+		ran["get-placement-test"] = true
+		res, err := client.PlacementTests.Get(ctx, "id-1")
+		checkResult(t, "get-placement-test", res, err)
+	})
+	t.Run("list-placement-tests", func(t *testing.T) {
+		ran["list-placement-tests"] = true
+		params := &zapsmtp.PlacementTestsListParams{
+			Limit: zapsmtp.Int(2),
+			After: zapsmtp.String("after-1"),
+		}
+		page, err := client.PlacementTests.List(ctx, params)
+		checkPage(t, "list-placement-tests", page, err)
+		checkAutoPaging(t, "list-placement-tests", client.PlacementTests.ListAutoPaging(ctx, params))
+	})
 	checkRanAll(t, ran)
 }
 
@@ -960,6 +1006,9 @@ func TestModelsDecode(t *testing.T) {
 		"EmailEvent":                      {new(zapsmtp.EmailEvent), `{"attempts":2,"egress_source":"egress_source-1","mx":"mx-1","peer_addr":"peer_addr-1","recipient":"recipient-1","response":"response-1","response_code":2,"status":"status-1","time":"2026-01-02T03:04:05Z","tls":"tls-1","type":"type-1"}`},
 		"EmailRecipient":                  {new(zapsmtp.EmailRecipient), `{"email":"email-1","response":"response-1","status":"status-1","updated_at":"2026-01-02T03:04:05Z"}`},
 		"EmailShare":                      {new(zapsmtp.EmailShare), `{"email_id":"email_id-1","expires_at":"2026-01-02T03:04:05Z","object":"object-1","url":"url-1"}`},
+		"EmailValidation":                 {new(zapsmtp.EmailValidation), `{"checks":{"accept_all":true,"disposable":true,"domain":"domain-1","free":true,"mailbox":"mailbox-1","mx":["mx-1"],"previously_bounced":true,"role":true,"suppressed":true,"syntax":true},"did_you_mean":"did_you_mean-1","email":"email-1","normalized":"normalized-1","object":"object-1","reason":"reason-1","reasons":["reasons-1"],"result":"result-1","score":1.5}`},
+		"EmailValidationChecks":           {new(zapsmtp.EmailValidationChecks), `{"accept_all":true,"disposable":true,"domain":"domain-1","free":true,"mailbox":"mailbox-1","mx":["mx-1"],"previously_bounced":true,"role":true,"suppressed":true,"syntax":true}`},
+		"EmailValidationList":             {new(zapsmtp.EmailValidationList), `{"data":[{"checks":{"accept_all":true,"disposable":true,"domain":"domain-1","free":true,"mailbox":"mailbox-1","mx":["mx-1"],"previously_bounced":true,"role":true,"suppressed":true,"syntax":true},"did_you_mean":"did_you_mean-1","email":"email-1","normalized":"normalized-1","object":"object-1","reason":"reason-1","reasons":["reasons-1"],"result":"result-1","score":1.5}],"object":"object-1"}`},
 		"ForwardDestination":              {new(zapsmtp.ForwardDestination), `{"confirmation_sent_at":"2026-01-02T03:04:05Z","created_at":"2026-01-02T03:04:05Z","email":"email-1","id":"id-1","verified_at":"2026-01-02T03:04:05Z"}`},
 		"InboundDomain":                   {new(zapsmtp.InboundDomain), `{"created_at":"2026-01-02T03:04:05Z","example_address":"example_address-1","id":"id-1","last_checked_at":"2026-01-02T03:04:05Z","managed":true,"mx_verified":true,"name":"name-1","records":[{"name":"name-1","record":"record-1","required":true,"status":"status-1","type":"type-1","value":"value-1"}],"reject_spam":true,"require_tls":true}`},
 		"InboundDomainCheck":              {new(zapsmtp.InboundDomainCheck), `{"domain":{"created_at":"2026-01-02T03:04:05Z","example_address":"example_address-1","id":"id-1","last_checked_at":"2026-01-02T03:04:05Z","managed":true,"mx_verified":true,"name":"name-1","records":[{"name":"name-1","record":"record-1","required":true,"status":"status-1","type":"type-1","value":"value-1"}],"reject_spam":true,"require_tls":true},"mx_found":["mx_found-1"]}`},
@@ -973,6 +1022,10 @@ func TestModelsDecode(t *testing.T) {
 		"MetricsGroup":                    {new(zapsmtp.MetricsGroup), `{"bounce_rate":1.5,"bounced":2,"click_rate":1.5,"clicked":2,"complained":2,"complaint_rate":1.5,"delayed":2,"delivered":2,"delivery_rate":1.5,"failed":2,"human_open_rate":1.5,"human_opened":2,"open_rate":1.5,"opened":2,"sent":2,"suppressed":2,"value":"value-1"}`},
 		"MetricsSeries":                   {new(zapsmtp.MetricsSeries), `{"bounce_rate":1.5,"bounced":2,"click_rate":1.5,"clicked":2,"complained":2,"complaint_rate":1.5,"delayed":2,"delivered":2,"delivery_rate":1.5,"failed":2,"human_open_rate":1.5,"human_opened":2,"open_rate":1.5,"opened":2,"sent":2,"suppressed":2,"time":"2026-01-02T03:04:05Z"}`},
 		"MetricsTotals":                   {new(zapsmtp.MetricsTotals), `{"bounce_rate":1.5,"bounced":2,"click_rate":1.5,"clicked":2,"complained":2,"complaint_rate":1.5,"delayed":2,"delivered":2,"delivery_rate":1.5,"failed":2,"human_open_rate":1.5,"human_opened":2,"open_rate":1.5,"opened":2,"sent":2,"suppressed":2}`},
+		"PlacementAuth":                   {new(zapsmtp.PlacementAuth), `{"dkim":"dkim-1","dmarc":"dmarc-1","spf":"spf-1"}`},
+		"PlacementResult":                 {new(zapsmtp.PlacementResult), `{"address":"address-1","auth":{"dkim":"dkim-1","dmarc":"dmarc-1","spf":"spf-1"},"email_id":"email_id-1","folder":"folder-1","placement":"placement-1","provider":"provider-1","received_at":"2026-01-02T03:04:05Z"}`},
+		"PlacementSummary":                {new(zapsmtp.PlacementSummary), `{"forums":2,"inbox":2,"inbox_rate":1.5,"missing":2,"pending":2,"primary":2,"promotions":2,"social":2,"spam":2,"total":2,"updates":2}`},
+		"PlacementTest":                   {new(zapsmtp.PlacementTest), `{"created_at":"2026-01-02T03:04:05Z","ends_at":"2026-01-02T03:04:05Z","finished_at":"2026-01-02T03:04:05Z","from":"from-1","id":"id-1","mode":"mode-1","object":"object-1","results":[{"address":"address-1","auth":{"dkim":"dkim-1","dmarc":"dmarc-1","spf":"spf-1"},"email_id":"email_id-1","folder":"folder-1","placement":"placement-1","provider":"provider-1","received_at":"2026-01-02T03:04:05Z"}],"status":"status-1","subject":"subject-1","summary":{"forums":2,"inbox":2,"inbox_rate":1.5,"missing":2,"pending":2,"primary":2,"promotions":2,"social":2,"spam":2,"total":2,"updates":2},"token":"token-1"}`},
 		"ReceivedEmail":                   {new(zapsmtp.ReceivedEmail), `{"action":"action-1","arc":"arc-1","attachments":[{"content_disposition":"content_disposition-1","content_id":"content_id-1","content_type":"content_type-1","filename":"filename-1","id":"id-1","object":"object-1","size":2}],"authentication":{"dkim":"dkim-1","dmarc":"dmarc-1","spf":"spf-1"},"automated":{"reason":"reason-1","type":"type-1"},"bcc":["bcc-1"],"cc":["cc-1"],"created_at":"2026-01-02T03:04:05Z","envelope":{"from":"from-1","to":"to-1"},"from":"from-1","from_name":"from_name-1","headers":{"key":"value-1"},"helo":"helo-1","html":"html-1","html_format":"html_format-1","id":"id-1","in_reply_to_email_id":"in_reply_to_email_id-1","is_spam":true,"mailbox_hash":"mailbox_hash-1","message_id":"message_id-1","object":"object-1","peer_ip":"peer_ip-1","raw":{"download_url":"download_url-1","expires_at":"2026-01-02T03:04:05Z"},"received_for":["received_for-1"],"reply_text":"reply_text-1","reply_to":["reply_to-1"],"route_id":"route_id-1","size":2,"spam":{"action":"action-1","is_spam":true,"score":1.5},"spam_score":1.5,"status":"status-1","subject":"subject-1","text":"text-1","thread_id":"thread_id-1","tls":"tls-1","to":["to-1"]}`},
 		"ReceivedEmailAction":             {new(zapsmtp.ReceivedEmailAction), `{"id":"id-1","learned":true,"object":"object-1","redelivered":true,"spam":true}`},
 		"ReceivedEmailAttachment":         {new(zapsmtp.ReceivedEmailAttachment), `{"content_disposition":"content_disposition-1","content_id":"content_id-1","content_type":"content_type-1","filename":"filename-1","id":"id-1","object":"object-1","size":2}`},

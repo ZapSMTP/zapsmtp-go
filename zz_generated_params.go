@@ -1402,3 +1402,71 @@ type VariablesSetGlobalParams struct {
 func (p VariablesSetGlobalParams) MarshalJSON() ([]byte, error) {
 	return marshalObject(p)
 }
+
+// EmailValidationsCreateParams are the parameters of EmailValidations.Create (POST
+// /email-validations).
+type EmailValidationsCreateParams struct {
+	// The address to check. Required.
+	Email string `json:"email"`
+}
+
+// MarshalJSON leaves out the optional fields that are nil, and sends the rest: an empty, non-nil slice
+// or map goes out as [] or {}.
+func (p EmailValidationsCreateParams) MarshalJSON() ([]byte, error) {
+	return marshalObject(p)
+}
+
+// EmailValidationsCreateBatchParams are the parameters of EmailValidations.CreateBatch (POST
+// /email-validations/batch).
+type EmailValidationsCreateBatchParams struct {
+	// 1–100 addresses, each at most 320 characters. Required.
+	Emails []string `json:"emails"`
+}
+
+// MarshalJSON leaves out the optional fields that are nil, and sends the rest: an empty, non-nil slice
+// or map goes out as [] or {}.
+func (p EmailValidationsCreateBatchParams) MarshalJSON() ([]byte, error) {
+	return marshalObject(p)
+}
+
+// PlacementTestsCreateParams are the parameters of PlacementTests.Create (POST /placement-tests).
+type PlacementTestsCreateParams struct {
+	// Sender on one of your verified domains. Leave out (with template) for a manual test.
+	From *string `json:"from,omitzero"`
+
+	// As in Send an email.
+	Subject *string `json:"subject,omitzero"`
+
+	// As in Send an email.
+	HTML *string `json:"html,omitzero"`
+
+	// As in Send an email.
+	Text *string `json:"text,omitzero"`
+
+	// A stored template and its variables, as in Send an email.
+	Template *TemplateRef `json:"template,omitzero"`
+
+	// Extra headers, as in Send an email.
+	Headers map[string]string `json:"headers,omitzero"`
+
+	// As in Send an email.
+	Tags []Tag `json:"tags,omitzero"`
+
+	// As in Send an email.
+	Stream *string `json:"stream,omitzero"`
+}
+
+// MarshalJSON leaves out the optional fields that are nil, and sends the rest: an empty, non-nil slice
+// or map goes out as [] or {}.
+func (p PlacementTestsCreateParams) MarshalJSON() ([]byte, error) {
+	return marshalObject(p)
+}
+
+// PlacementTestsListParams are the parameters of PlacementTests.List (GET /placement-tests).
+type PlacementTestsListParams struct {
+	// 1-100. Limits: 422 invalid_parameter otherwise. Default: 20.
+	Limit *int `url:"limit"`
+
+	// A test id from next_cursor. Limits: 422 invalid_parameter otherwise.
+	After *string `url:"after"`
+}

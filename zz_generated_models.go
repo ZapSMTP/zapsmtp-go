@@ -850,6 +850,75 @@ func (m *EmailShare) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// EmailValidation is a response object of the API. Decoding never fails on a field of an unexpected
+// type: that field is left empty and Raw keeps it.
+type EmailValidation struct {
+	Checks     *EmailValidationChecks `json:"checks"`
+	DidYouMean *string                `json:"did_you_mean"`
+	Email      string                 `json:"email"`
+	Normalized string                 `json:"normalized"`
+	Object     string                 `json:"object"`
+	Reason     string                 `json:"reason"`
+	Reasons    []string               `json:"reasons"`
+	Result     string                 `json:"result"`
+	Score      float64                `json:"score"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *EmailValidation) UnmarshalJSON(data []byte) error {
+	type plain EmailValidation
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// EmailValidationChecks is a response object of the API. Decoding never fails on a field of an
+// unexpected type: that field is left empty and Raw keeps it.
+type EmailValidationChecks struct {
+	AcceptAll         *bool    `json:"accept_all"`
+	Disposable        bool     `json:"disposable"`
+	Domain            string   `json:"domain"`
+	Free              bool     `json:"free"`
+	Mailbox           string   `json:"mailbox"`
+	MX                []string `json:"mx"`
+	PreviouslyBounced bool     `json:"previously_bounced"`
+	Role              bool     `json:"role"`
+	Suppressed        bool     `json:"suppressed"`
+	Syntax            bool     `json:"syntax"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *EmailValidationChecks) UnmarshalJSON(data []byte) error {
+	type plain EmailValidationChecks
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// EmailValidationList is a response object of the API. Decoding never fails on a field of an
+// unexpected type: that field is left empty and Raw keeps it.
+type EmailValidationList struct {
+	Data   []EmailValidation `json:"data"`
+	Object string            `json:"object"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *EmailValidationList) UnmarshalJSON(data []byte) error {
+	type plain EmailValidationList
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
 // ForwardDestination is a response object of the API. Decoding never fails on a field of an unexpected
 // type: that field is left empty and Raw keeps it.
 type ForwardDestination struct {
@@ -1178,6 +1247,103 @@ type MetricsTotals struct {
 // UnmarshalJSON decodes leniently and keeps the raw object in Raw.
 func (m *MetricsTotals) UnmarshalJSON(data []byte) error {
 	type plain MetricsTotals
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// PlacementAuth is a response object of the API. Decoding never fails on a field of an unexpected
+// type: that field is left empty and Raw keeps it.
+type PlacementAuth struct {
+	DKIM  string `json:"dkim"`
+	DMARC string `json:"dmarc"`
+	SPF   string `json:"spf"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *PlacementAuth) UnmarshalJSON(data []byte) error {
+	type plain PlacementAuth
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// PlacementResult is a response object of the API. Decoding never fails on a field of an unexpected
+// type: that field is left empty and Raw keeps it.
+type PlacementResult struct {
+	Address    string         `json:"address"`
+	Auth       *PlacementAuth `json:"auth"`
+	EmailID    *string        `json:"email_id"`
+	Folder     *string        `json:"folder"`
+	Placement  *string        `json:"placement"`
+	Provider   string         `json:"provider"`
+	ReceivedAt *time.Time     `json:"received_at"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *PlacementResult) UnmarshalJSON(data []byte) error {
+	type plain PlacementResult
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// PlacementSummary is a response object of the API. Decoding never fails on a field of an unexpected
+// type: that field is left empty and Raw keeps it.
+type PlacementSummary struct {
+	Forums     int     `json:"forums"`
+	Inbox      int     `json:"inbox"`
+	InboxRate  float64 `json:"inbox_rate"`
+	Missing    int     `json:"missing"`
+	Pending    int     `json:"pending"`
+	Primary    int     `json:"primary"`
+	Promotions int     `json:"promotions"`
+	Social     int     `json:"social"`
+	Spam       int     `json:"spam"`
+	Total      int     `json:"total"`
+	Updates    int     `json:"updates"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *PlacementSummary) UnmarshalJSON(data []byte) error {
+	type plain PlacementSummary
+	decodeLenient(data, (*plain)(m))
+	m.Raw = append(json.RawMessage(nil), data...)
+	return nil
+}
+
+// PlacementTest is a response object of the API. Decoding never fails on a field of an unexpected
+// type: that field is left empty and Raw keeps it.
+type PlacementTest struct {
+	CreatedAt  *time.Time        `json:"created_at"`
+	EndsAt     *time.Time        `json:"ends_at"`
+	FinishedAt *time.Time        `json:"finished_at"`
+	From       *string           `json:"from"`
+	ID         string            `json:"id"`
+	Mode       string            `json:"mode"`
+	Object     string            `json:"object"`
+	Results    []PlacementResult `json:"results"`
+	Status     string            `json:"status"`
+	Subject    *string           `json:"subject"`
+	Summary    *PlacementSummary `json:"summary"`
+	Token      string            `json:"token"`
+
+	// Raw is the object as the API sent it, unknown fields included.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON decodes leniently and keeps the raw object in Raw.
+func (m *PlacementTest) UnmarshalJSON(data []byte) error {
+	type plain PlacementTest
 	decodeLenient(data, (*plain)(m))
 	m.Raw = append(json.RawMessage(nil), data...)
 	return nil
